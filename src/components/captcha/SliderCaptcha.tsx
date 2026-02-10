@@ -146,15 +146,15 @@ export function SliderCaptcha({ difficulty, onComplete }: SliderCaptchaProps) {
               step="0.1"
               value={sliderValue}
               onChange={(e) => setSliderValue(parseFloat(e.target.value))}
+              onMouseUp={handleVerify}
+              onTouchEnd={handleVerify}
               className="w-full h-4 bg-secondary/50 rounded-full appearance-none cursor-pointer accent-primary focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all"
             />
+          <p className="text-xs text-muted-foreground text-center mt-2 font-medium">
+            Release the slider to submit
+          </p>
         </div>
       </CardContent>
-      <CardFooter>
-        <Button className="w-full text-lg h-12 rounded-2xl font-bold shadow-md bg-primary hover:bg-primary/90 text-white" onClick={handleVerify}>
-          Verify
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

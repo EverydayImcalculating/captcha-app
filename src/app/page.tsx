@@ -25,22 +25,12 @@ export default function Home() {
           <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit mb-4">
             <Sparkles className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle className="text-3xl font-bold text-foreground">Captcha UX Test</CardTitle>
+          <CardTitle className="text-4xl font-bold text-foreground">Captcha Test</CardTitle>
           <CardDescription className="text-lg mt-2">
-            Help us evaluate the frustration levels of different captcha types.
+            Help us evaluate the user experience of different captcha types.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="bg-white/50 p-4 rounded-2xl text-sm text-muted-foreground space-y-2">
-            <p>You will complete <strong>15 rounds</strong> of captchas:</p>
-            <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>5 Image Selection rounds</li>
-              <li>5 Text Input rounds</li>
-              <li>5 Slider Puzzle rounds</li>
-            </ul>
-            <p className="mt-2">After each round, rate your frustration level.</p>
-          </div>
-
           <Link href="/test" className="block transform transition-all hover:scale-105 active:scale-95 duration-300">
             <Button size="lg" className="w-full text-xl h-16 rounded-full bg-primary hover:bg-primary/90 text-white font-extrabold shadow-[0_10px_20px_-5px_rgba(255,183,178,0.6)] border-4 border-white/50">
               Start The Test 
@@ -49,10 +39,6 @@ export default function Home() {
           </Link>
         </CardContent>
       </Card>
-      
-      <p className="mt-8 text-xs text-muted-foreground text-center max-w-sm">
-        minimal • pastel • cute
-      </p>
     </div>
   );
 }

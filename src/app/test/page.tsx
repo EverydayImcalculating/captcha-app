@@ -40,23 +40,41 @@ export default function TestPage() {
   const difficulty = difficultyMap[currentRound % 5];
 
   const handleTestComplete = (success: boolean, timeTaken: number) => {
+    // Save result without frustration score first
+    addResult({
+      round: currentRound + 1,
+      type,
+      timeTaken,
+      accuracy: success,
+      frustrationScore: 0, // Will be set later if needed
+    });
+    
     setTempResult({ success, timeTaken });
-    setStep('rating');
-  };
-
-  const handleRate = (score: number) => {
-    if (tempResult) {
-      addResult({
-        round: currentRound + 1,
-        type,
-        timeTaken: tempResult.timeTaken,
-        accuracy: tempResult.success,
-        frustrationScore: score,
-      });
-      setTempResult(null);
+    
+    // Only show frustration rating after completing each TYPE (rounds 4, 9, 14 = indices 5, 10, 15)
+    // Round 0-4 (indices): Image type, show rating after round 4
+    // Round 5-9 (indices): Text type, show rating after round 9  
+    // Round 10-14 (indices): Slider type, show rating after round 14
+    const shouldRate = (currentRound + 1) % 5 === 0; // After rounds 5, 10, 15 (1-indexed)
+    
+    if (shouldRate) {
+      setStep('rating');
+    } else {
       setStep('test');
       nextRound();
     }
+  };
+
+  const handleRate = (score: number) => {
+    // Update all 5 tests of this type with the frustration score
+    const typeStartRound = Math.floor(currentRound / 5) * 5;
+    
+    // This will be handled in the store - update last 5 results with frustration
+    useCaptchaStore.getState().updateTypeFrustration(typeStartRound, score);
+    
+    setTempResult(null);
+    setStep('test');
+    nextRound();
   };
 
   return (

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { BarChart3, Clock, Frown, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEffect } from 'react';
+import { RawDataTable } from '@/components/RawDataTable';
 
 export default function SummaryPage() {
   const { results, resetTests } = useCaptchaStore();
@@ -135,6 +136,11 @@ export default function SummaryPage() {
             </div>
          </CardContent>
        </Card>
+
+       {/* Raw Data Table */}
+       <div className="mt-10">
+         <RawDataTable />
+       </div>
 
        <div className="mt-12 flex justify-center">
          <Link href="/">

@@ -28,14 +28,17 @@ export function ImageCaptcha({ difficulty, onComplete }: ImageCaptchaProps) {
     // Vary the number of targets based on difficulty
     const targetCount = 3 + (difficulty - 1); // 3, 4, or 5 targets
     
+    // Use round number and timestamp to ensure different images each test
+    const seed = Date.now();
+    
     const newImages = Array.from({ length: totalImages }).map((_, i) => {
       const isTarget = i < targetCount; // First N are targets (we'll shuffle later)
       return {
         id: i,
         isTarget,
         url: isTarget 
-          ? `https://loremflickr.com/200/200/kitten?lock=${i + 100}` 
-          : `https://loremflickr.com/200/200/puppy?lock=${i + 200}`,
+          ? `https://loremflickr.com/300/300/kitten?lock=${seed + i}` 
+          : `https://loremflickr.com/300/300/puppy?lock=${seed + i + 100}`,
       };
     });
     
@@ -73,21 +76,21 @@ export function ImageCaptcha({ difficulty, onComplete }: ImageCaptchaProps) {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto border-4 border-white/50 shadow-cute rounded-3xl bg-white/80 backdrop-blur-sm">
+    <Card className="w-full max-w-2xl mx-auto border-4 border-white/50 shadow-cute rounded-3xl bg-white/80 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-center text-primary">Select <span className="underline decoration-wavy decoration-secondary">Kittens</span></CardTitle>
         <CardDescription className="text-center text-muted-foreground font-medium">Tap the cuties to select them!</CardDescription>
       </CardHeader>
       <CardContent>
         <div 
-          className="grid gap-3 p-2" 
+          className="grid gap-4 p-3" 
           style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }}
         >
           {images.map((img) => (
             <div 
               key={img.id}
               className={cn(
-                "relative aspect-square cursor-pointer overflow-hidden rounded-2xl transition-all duration-300 transform",
+                "relative aspect-square cursor-pointer overflow-hidden rounded-lg transition-all duration-300 transform",
                 "hover:shadow-lg hover:-translate-y-1 active:scale-95",
                 selected.has(img.id) ? "ring-4 ring-secondary ring-offset-2 scale-95" : "hover:opacity-90",
                 "bg-secondary/20"
