@@ -80,7 +80,7 @@ export default function TestPage() {
       <div className="w-full max-w-md mb-8">
         <div className="flex justify-between text-sm text-muted-foreground mb-2">
           <span>Test {currentRound + 1} of 15</span>
-          <span>{type.charAt(0).toUpperCase() + type.slice(1)} Captcha • Difficulty {difficulty}</span>
+          <span>{type.charAt(0).toUpperCase() + type.slice(1)} Captcha</span>
         </div>
         <div className="h-2 w-full bg-secondary/30 rounded-full overflow-hidden">
           <div 
