@@ -67,3 +67,8 @@ Five HCI-based anti-bot techniques applied to the text captcha canvas, all scali
 3. **Elastic Distortion** — Sinusoidal mesh warp (3/6/9px amplitude) makes font geometry unrecognizable to OCR
 4. **Color Camouflage** — Per-pixel background-color replacement (5%/10%/15% chance) creates "swiss-cheese" effect
 5. **Multi-Point Bézier Strikes** — 4/5/6 cubic Bézier curves at font stroke width create false-positive loops
+
+### Slider Captcha Progressive Difficulty
+- **Difficulty 1**: Centered vertical hole position (~30%), no piece rotation
+- **Difficulty 2**: Randomized vertical hole position (15–55%), no piece rotation
+- **Difficulty 3**: Randomized vertical position + puzzle piece rotated ±15°
