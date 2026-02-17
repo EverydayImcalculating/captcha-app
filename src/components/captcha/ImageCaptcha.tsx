@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/Card';
 import { Check } from 'lucide-react';
+import { mockImages } from '@/constants/images';
+import { Image } from '@/types/Image.type';
 
 interface ImageCaptchaProps {
   difficulty: number; // 1-3
@@ -15,7 +17,8 @@ export function ImageCaptcha({ difficulty, onComplete }: ImageCaptchaProps) {
   const [selected, setSelected] = React.useState<Set<number>>(new Set());
   const startTime = React.useRef<number>(Date.now());
   const [gridSize, setGridSize] = React.useState(3); // 3x3 or 4x4
-  const [images, setImages] = React.useState<{ id: number; url: string; isTarget: boolean }[]>([]);
+  //const [images, setImages] = React.useState<{ id: number; url: string; isTarget: boolean }[]>([]);
+  const [images, setImages] = React.useState<Image[]>([]);
 
   // Initialize round
   React.useEffect(() => {
@@ -30,17 +33,19 @@ export function ImageCaptcha({ difficulty, onComplete }: ImageCaptchaProps) {
     
     // Use round number and timestamp to ensure different images each test
     const seed = Date.now();
+
+    const newImages = mockImages;
     
-    const newImages = Array.from({ length: totalImages }).map((_, i) => {
-      const isTarget = i < targetCount; // First N are targets (we'll shuffle later)
-      return {
-        id: i,
-        isTarget,
-        url: isTarget 
-          ? `https://loremflickr.com/300/300/kitten?lock=${seed + i}` 
-          : `https://loremflickr.com/300/300/puppy?lock=${seed + i + 100}`,
-      };
-    });
+    // const newImages = Array.from({ length: totalImages }).map((_, i) => {
+    //   const isTarget = i < targetCount; // First N are targets (we'll shuffle later)
+    //   return {
+    //     id: i,
+    //     isTarget,
+    //     url: isTarget 
+    //       ? `https://loremflickr.com/300/300/kitten?lock=${seed + i}` 
+    //       : `https://loremflickr.com/300/300/puppy?lock=${seed + i + 100}`,
+    //   };
+    // });
     
     // Shuffle
     setImages(newImages.sort(() => Math.random() - 0.5));
@@ -83,14 +88,14 @@ export function ImageCaptcha({ difficulty, onComplete }: ImageCaptchaProps) {
       </CardHeader>
       <CardContent>
         <div 
-          className="grid gap-4 p-3" 
+          className="grid gap-2 p-3" 
           style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }}
         >
           {images.map((img) => (
             <div 
               key={img.id}
               className={cn(
-                "relative aspect-square cursor-pointer overflow-hidden rounded-lg transition-all duration-300 transform",
+                "relative aspect-square cursor-pointer overflow-hidden rounded-[8px] transition-all duration-300 transform",
                 "hover:shadow-lg hover:-translate-y-1 active:scale-95",
                 selected.has(img.id) ? "ring-4 ring-secondary ring-offset-2 scale-95" : "hover:opacity-90",
                 "bg-secondary/20"

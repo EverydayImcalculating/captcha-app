@@ -7,8 +7,6 @@ import { ImageCaptcha } from '@/components/captcha/ImageCaptcha';
 import { TextCaptcha } from '@/components/captcha/TextCaptcha';
 import { SliderCaptcha } from '@/components/captcha/SliderCaptcha';
 import { FrustrationMeter } from '@/components/FrustrationMeter';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Progress } from '@/components/ui/Progress'; // We need a progress bar? I'll make a simple one or use a text indicator for now.
 
 export default function TestPage() {
   const router = useRouter();
