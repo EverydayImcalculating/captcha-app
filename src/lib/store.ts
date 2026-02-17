@@ -1,6 +1,6 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
-export type CaptchaType = 'image' | 'text' | 'slider';
+export type CaptchaType = "image" | "text" | "slider";
 
 export interface TestResult {
   round: number;
@@ -14,6 +14,7 @@ export interface TestResult {
 
 interface CaptchaStore {
   currentRound: number;
+  orderedTypes: CaptchaType[];
   results: TestResult[];
   addResult: (result: TestResult) => void;
   updateTypeFrustration: (typeStartRound: number, score: number) => void;
@@ -21,8 +22,11 @@ interface CaptchaStore {
   resetTests: () => void;
 }
 
+const initial: CaptchaType[] = ["image", "slider", "text"];
+
 export const useCaptchaStore = create<CaptchaStore>((set) => ({
   currentRound: 0,
+  orderedTypes: initial,
   results: [],
   addResult: (result) =>
     set((state) => ({ results: [...state.results, result] })),
@@ -31,9 +35,14 @@ export const useCaptchaStore = create<CaptchaStore>((set) => ({
       results: state.results.map((r, idx) =>
         idx >= typeStartRound && idx < typeStartRound + 5
           ? { ...r, frustrationScore: score }
-          : r
+          : r,
       ),
     })),
   nextRound: () => set((state) => ({ currentRound: state.currentRound + 1 })),
-  resetTests: () => set({ currentRound: 0, results: [] }),
+  resetTests: () =>
+    set({
+      currentRound: 0,
+      results: [],
+      orderedTypes: initial.sort(() => Math.random() - 0.5),
+    }),
 }));
