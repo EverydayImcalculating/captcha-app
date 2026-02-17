@@ -9,8 +9,8 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: 'Cute Captcha Test',
-  description: 'A minimal and cute captcha testing application.',
+  title: 'Captcha Test',
+  description: 'A minimal and captcha testing application.',
 };
 
 export default function RootLayout({

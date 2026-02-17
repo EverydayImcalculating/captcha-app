@@ -57,3 +57,18 @@ Each type has 5 rounds with progressive difficulty (1, 2, 3, 2, 3). Users provid
 - Created `RawDataTable` component displaying all test details in tabular format
 - CSV export button for downloading complete dataset
 - Summary page now shows comprehensive analytics + raw data
+
+## Advanced Text Captcha Difficulty (Feb 17, 2026)
+
+Five HCI-based anti-bot techniques applied to the text captcha canvas, all scaling with difficulty 1–3:
+
+1. **Occlusion Overlap** — Negative character spacing (10%/20%/30% overlap) exploits Gestalt continuation
+2. **Perlin Noise Overlay** — 2D noise background at stroke-width frequency disrupts OCR edge detection
+3. **Elastic Distortion** — Sinusoidal mesh warp (3/6/9px amplitude) makes font geometry unrecognizable to OCR
+4. **Color Camouflage** — Per-pixel background-color replacement (5%/10%/15% chance) creates "swiss-cheese" effect
+5. **Multi-Point Bézier Strikes** — 4/5/6 cubic Bézier curves at font stroke width create false-positive loops
+
+### Slider Captcha Progressive Difficulty
+- **Difficulty 1**: Centered vertical hole position (~30%), no piece rotation
+- **Difficulty 2**: Randomized vertical hole position (15–55%), no piece rotation
+- **Difficulty 3**: Randomized vertical position + puzzle piece rotated ±15°
