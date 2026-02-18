@@ -12,7 +12,8 @@ import {
 import { useCaptchaStore } from "@/lib/store";
 import { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
-import { getFileHandle, saveFileHandle } from "@/lib/fileHandleStorage";
+import { saveFileHandle } from "@/lib/fileHandleStorage";
+import { loadHandle } from "@/utils/csvHandler";
 
 export default function Home() {
   const { resetTests } = useCaptchaStore();
@@ -46,20 +47,6 @@ export default function Home() {
     }
   };
 
-  const loadHandle = async () => {
-    const handle = await getFileHandle();
-    if (!handle) return null;
-
-    // ขอ permission ใหม่ (สำคัญมาก)
-    const permission = await handle.requestPermission?.({
-      mode: "readwrite",
-    });
-
-    if (permission !== "granted") return null;
-
-    return handle;
-  };
-
   useEffect(() => {
     const setUpFileHandle = async () => {
       const handle = await loadHandle();
@@ -77,23 +64,27 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background relative overflow-hidden">
       {/* Decorative background blobs */}
-      {!fileHandle && (
-        <button
-          onClick={chooseFile}
-          className="
+      <button
+        onClick={chooseFile}
+        className={`
+
           absolute top-10 right-10
           px-5 py-3
           text-lg font-medium
           rounded-xl
-          bg-secondary hover:bg-emerald-200 text-emerald-700 border-2 border-white/50
+          ${
+            fileHandle
+              ? "bg-secondary hover:bg-emerald-200 text-emerald-700"
+              : "bg-primary/50 hover:bg-primary/75 text-foreground"
+          }
+          border-2 border-white/50
           shadow-sm hover:shadow-md
           transform transition-all hover:scale-105 active:scale-95 duration-300
           flex items-center justify-center gap-2
-        "
-        >
-          📂 Choose CSV File
-        </button>
-      )}
+        `}
+      >
+        {`${fileHandle ? "📂Change" : "⚠️Choose"} CSV File`}
+      </button>
       <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-primary/20 rounded-full blur-3xl opacity-50" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-secondary/20 rounded-full blur-3xl opacity-50" />
 

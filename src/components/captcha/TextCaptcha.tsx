@@ -1,14 +1,27 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/Card';
-import { RefreshCcw } from 'lucide-react';
+import * as React from "react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/components/ui/Card";
+import { RefreshCcw } from "lucide-react";
 
 interface TextCaptchaProps {
   difficulty: number; // 1-3
-  onComplete: (success: boolean, timeTaken: number) => void;
+  onComplete: (
+    success: boolean,
+    timeTaken: number,
+    userResponse: string,
+    correctAnswer: string,
+    testID?: string,
+  ) => void;
 }
 
 // ─── Perlin Noise (lightweight 2D implementation) ───────────────────────────
@@ -49,14 +62,14 @@ function perlinNoise2D() {
     return lerp(
       lerp(grad(aa, xf, yf), grad(ba, xf - 1, yf), u),
       lerp(grad(ab, xf, yf - 1), grad(bb, xf - 1, yf - 1), u),
-      v
+      v,
     );
   };
 }
 
 export function TextCaptcha({ difficulty, onComplete }: TextCaptchaProps) {
-  const [inputValue, setInputValue] = React.useState('');
-  const [captchaText, setCaptchaText] = React.useState('');
+  const [inputValue, setInputValue] = React.useState("");
+  const [captchaText, setCaptchaText] = React.useState("");
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const startTime = React.useRef<number>(Date.now());
@@ -64,14 +77,14 @@ export function TextCaptcha({ difficulty, onComplete }: TextCaptchaProps) {
   const canvasHeight = 120;
 
   const generateCaptcha = React.useCallback(() => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
     const length = 4 + difficulty; // 5, 6, 7 chars
-    let text = '';
+    let text = "";
     for (let i = 0; i < length; i++) {
       text += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     setCaptchaText(text);
-    setInputValue('');
+    setInputValue("");
     startTime.current = Date.now();
 
     const canvas = canvasRef.current;
@@ -79,12 +92,12 @@ export function TextCaptcha({ difficulty, onComplete }: TextCaptchaProps) {
 
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     // ── Background ──────────────────────────────────────────────────────
 
-    const bgColor = '#fdf6f6';
+    const bgColor = "#fdf6f6";
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -121,9 +134,15 @@ export function TextCaptcha({ difficulty, onComplete }: TextCaptchaProps) {
         const idx = (y * canvas.width + x) * 4;
         // Modulate background pixels with noise
         const offset = Math.floor(n * noiseIntensity);
-        noiseData[idx] = Math.max(0, Math.min(255, noiseData[idx] + offset));       // R
-        noiseData[idx + 1] = Math.max(0, Math.min(255, noiseData[idx + 1] + offset)); // G
-        noiseData[idx + 2] = Math.max(0, Math.min(255, noiseData[idx + 2] + offset)); // B
+        noiseData[idx] = Math.max(0, Math.min(255, noiseData[idx] + offset)); // R
+        noiseData[idx + 1] = Math.max(
+          0,
+          Math.min(255, noiseData[idx + 1] + offset),
+        ); // G
+        noiseData[idx + 2] = Math.max(
+          0,
+          Math.min(255, noiseData[idx + 2] + offset),
+        ); // B
       }
     }
     ctx.putImageData(noiseImageData, 0, 0);
@@ -133,7 +152,7 @@ export function TextCaptcha({ difficulty, onComplete }: TextCaptchaProps) {
     const fontSize = Math.min(36 - difficulty * 2, canvasWidth / length);
     const computedFont = window.getComputedStyle(document.body).fontFamily;
     ctx.font = `bold ${fontSize}px ${computedFont}`;
-    ctx.textBaseline = 'middle';
+    ctx.textBaseline = "middle";
 
     // Occlusion Overlap: negative spacing — 10%, 20%, 30% overlap
     const overlapFactor = 0.1 * difficulty;
@@ -164,7 +183,9 @@ export function TextCaptcha({ difficulty, onComplete }: TextCaptchaProps) {
     const pixels = imgData.data;
 
     // Parse background color for comparison
-    const bgR = 253, bgG = 246, bgB = 246; // #fdf6f6
+    const bgR = 253,
+      bgG = 246,
+      bgB = 246; // #fdf6f6
     const threshold = 60; // Pixel must differ from bg by this much to be "text"
 
     for (let i = 0; i < pixels.length; i += 4) {
@@ -205,7 +226,12 @@ export function TextCaptcha({ difficulty, onComplete }: TextCaptchaProps) {
 
         const dstIdx = (y * canvas.width + x) * 4;
 
-        if (srcX >= 0 && srcX < canvas.width && srcY >= 0 && srcY < canvas.height) {
+        if (
+          srcX >= 0 &&
+          srcX < canvas.width &&
+          srcY >= 0 &&
+          srcY < canvas.height
+        ) {
           const srcIdx = (srcY * canvas.width + srcX) * 4;
           dst[dstIdx] = src[srcIdx];
           dst[dstIdx + 1] = src[srcIdx + 1];
@@ -248,7 +274,7 @@ export function TextCaptcha({ difficulty, onComplete }: TextCaptchaProps) {
       // Use a text color to create false-positive strokes
       ctx.strokeStyle = textColors[i % textColors.length];
       ctx.lineWidth = strokeWidth;
-      ctx.lineCap = 'round';
+      ctx.lineCap = "round";
       ctx.stroke();
     }
   }, [difficulty, canvasWidth, canvasHeight]);
@@ -263,8 +289,8 @@ export function TextCaptcha({ difficulty, onComplete }: TextCaptchaProps) {
     };
 
     updateWidth();
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
   React.useEffect(() => {
@@ -278,31 +304,39 @@ export function TextCaptcha({ difficulty, onComplete }: TextCaptchaProps) {
     // Case-sensitive check
     const success = inputValue === captchaText;
 
-    onComplete(success, timeTaken);
+    onComplete(success, timeTaken, inputValue, captchaText);
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto border-4 border-white/50 shadow-cute rounded-3xl bg-white/80 backdrop-blur-sm" data-testid="text-captcha-card" data-answer={captchaText}>
+    <Card
+      className="w-full max-w-md mx-auto border-4 border-white/50 shadow-cute rounded-3xl bg-white/80 backdrop-blur-sm"
+      data-testid="text-captcha-card"
+      data-answer={captchaText}
+    >
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center text-primary">Type the Text</CardTitle>
-        <CardDescription className="text-center font-medium">Case sensitive - Watch out!</CardDescription>
+        <CardTitle className="text-2xl font-bold text-center text-primary">
+          Type the Text
+        </CardTitle>
+        <CardDescription className="text-center font-medium">
+          Case sensitive - Watch out!
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6" ref={containerRef}>
         <div className="flex justify-center bg-white rounded-2xl border-4 border-secondary/30 p-2 relative overflow-hidden shadow-inner">
-           <canvas
-             ref={canvasRef}
-             width={canvasWidth}
-             height={canvasHeight}
-             className="rounded-xl max-w-full"
-           />
-           <Button
-             variant="ghost"
-             size="icon"
-             className="absolute top-2 right-2 text-muted-foreground hover:text-primary bg-white/80 hover:bg-white rounded-full shadow-sm"
-             onClick={generateCaptcha}
-            >
-              <RefreshCcw className="h-4 w-4" />
-            </Button>
+          <canvas
+            ref={canvasRef}
+            width={canvasWidth}
+            height={canvasHeight}
+            className="rounded-xl max-w-full"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2 text-muted-foreground hover:text-primary bg-white/80 hover:bg-white rounded-full shadow-sm"
+            onClick={generateCaptcha}
+          >
+            <RefreshCcw className="h-4 w-4" />
+          </Button>
         </div>
 
         <form onSubmit={handleSubmit} className="flex gap-2">
@@ -316,7 +350,10 @@ export function TextCaptcha({ difficulty, onComplete }: TextCaptchaProps) {
         </form>
       </CardContent>
       <CardFooter>
-        <Button className="w-full text-lg h-12 rounded-2xl font-bold shadow-md bg-primary hover:bg-primary/90 text-white" onClick={handleSubmit}>
+        <Button
+          className="w-full text-lg h-12 rounded-2xl font-bold shadow-md bg-primary hover:bg-primary/90 text-white"
+          onClick={handleSubmit}
+        >
           Verify
         </Button>
       </CardFooter>

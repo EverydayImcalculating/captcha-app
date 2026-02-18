@@ -7,6 +7,9 @@ export interface TestResult {
   type: CaptchaType;
   timeTaken: number; // in milliseconds
   accuracy: boolean | number; // true/false for pass/fail, or percentage
+  testID?: string;
+  userResponse: string ;
+  correctAnswer: string;
   frustrationScore: number; // 1-5
   startTimestamp?: string; // ISO timestamp
   endTimestamp?: string; // ISO timestamp

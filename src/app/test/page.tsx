@@ -7,7 +7,7 @@ import { ImageCaptcha } from "@/components/captcha/ImageCaptcha";
 import { TextCaptcha } from "@/components/captcha/TextCaptcha";
 import { SliderCaptcha } from "@/components/captcha/SliderCaptcha";
 import { FrustrationMeter } from "@/components/FrustrationMeter";
-import { getFileHandle } from "@/lib/fileHandleStorage";
+import { appendResultsToFile, downloadCSV } from "@/utils/csvHandler";
 
 export default function TestPage() {
   const router = useRouter();
@@ -19,98 +19,10 @@ export default function TestPage() {
     timeTaken: number;
   } | null>(null);
 
-  const loadHandle = async () => {
-    const handle = await getFileHandle();
-    if (!handle) return null;
-
-    // ขอ permission ใหม่ (สำคัญมาก)
-    const permission = await handle.requestPermission?.({
-      mode: "readwrite",
-    });
-
-    if (permission !== "granted") return null;
-
-    return handle;
-  };
-
-  const getNextParticipantID = async (fileHandle: FileSystemFileHandle) => {
-    const file = await fileHandle.getFile();
-    const text = await file.text();
-
-    // ถ้าไฟล์ว่าง → คนแรก
-    if (!text.trim()) return 1;
-
-    const lines = text.trim().split("\n");
-
-    // มีแค่ header → คนแรก
-    if (lines.length <= 1) return 1;
-
-    // เอา row สุดท้าย
-    const lastRow = lines[lines.length - 1];
-
-    // CSV column แรกคือ participantID
-    const lastID = Number(lastRow.split(",")[0]);
-
-    if (isNaN(lastID)) return 1;
-
-    return lastID + 1;
-  };
-
-  const appendResultsToFile = async () => {
-    const fileHandle = await loadHandle();
-
-    if (!fileHandle) {
-      throw new Error("File handle not found. Please choose a file first.");
-    }
-
-    const participantID = await getNextParticipantID(fileHandle);
-
-    const headers = [
-      "Participant ID",
-      "Round",
-      "Type",
-      "Time (ms)",
-      "Accuracy",
-      "Frustration",
-    ];
-
-    const rows = results.map((r) =>
-      [
-        participantID,
-        r.round,
-        r.type,
-        r.timeTaken,
-        r.accuracy ? "Pass" : "Fail",
-        r.frustrationScore,
-      ].join(","),
-    );
-
-    const writable = await fileHandle.createWritable({
-      keepExistingData: true,
-    });
-
-    // move pointer ไปท้ายไฟล์
-    const file = await fileHandle.getFile();
-    const isEmpty = file.size === 0;
-
-    await writable.seek(file.size);
-
-    // ถ้าไฟล์ยังไม่มีข้อมูล → ใส่ header
-    if (isEmpty) {
-      await writable.write(headers.join(",") + "\n");
-    } else {
-      await writable.write("\n"); // ป้องกันชน
-    }
-
-    // append rows
-    await writable.write(rows.join("\n"));
-
-    await writable.close();
-  };
-
   React.useEffect(() => {
     if (currentRound >= 15) {
-      appendResultsToFile();
+      downloadCSV(results);
+      appendResultsToFile(results);
       router.push("/summary");
     }
   }, [currentRound, router]);
@@ -131,13 +43,22 @@ export default function TestPage() {
   const difficultyMap = [1, 2, 3, 2, 3];
   const difficulty = difficultyMap[currentRound % 5];
 
-  const handleTestComplete = (success: boolean, timeTaken: number) => {
+  const handleTestComplete = (
+    success: boolean,
+    timeTaken: number,
+    userResponse: string,
+    correctAnswer: string,
+    testID?: string,
+  ) => {
     // Save result without frustration score first
     addResult({
       round: currentRound + 1,
       type,
       timeTaken,
       accuracy: success,
+      testID: testID,
+      userResponse: userResponse,
+      correctAnswer: correctAnswer,
       frustrationScore: 0, // Will be set later if needed
     });
 
