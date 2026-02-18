@@ -16,7 +16,13 @@ import Image from "next/image";
 
 interface SliderCaptchaProps {
   difficulty: number; // 1-3
-  onComplete: (success: boolean, timeTaken: number) => void;
+  onComplete: (
+    success: boolean,
+    timeTaken: number,
+    userResponse: string,
+    correctAnswer: string,
+    testID?: string,
+  ) => void;
 }
 
 export function SliderCaptcha({ difficulty, onComplete }: SliderCaptchaProps) {
@@ -78,11 +84,16 @@ export function SliderCaptcha({ difficulty, onComplete }: SliderCaptchaProps) {
     const timeTaken = Date.now() - startTime.current;
 
     // Check if slider is close to target
-    const tolerance = 5 - difficulty; // 4%, 3%, 2%
+    const tolerance = 2.5;
     const diff = Math.abs(sliderValue - targetPosition);
 
     const success = diff <= tolerance;
-    onComplete(success, timeTaken);
+    onComplete(
+      success,
+      timeTaken,
+      sliderValue.toString(),
+      targetPosition.toString(),
+    );
   };
 
   // derived dimensions

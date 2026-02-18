@@ -17,7 +17,13 @@ import { ImageCollection } from "@/types/ImageCollection.type";
 
 interface ImageCaptchaProps {
   difficulty: number; // 1-3
-  onComplete: (success: boolean, timeTaken: number) => void;
+  onComplete: (
+    success: boolean,
+    timeTaken: number,
+    userResponse: string,
+    correctAnswer: string,
+    testID?: string,
+  ) => void;
 }
 
 export function ImageCaptcha({ difficulty, onComplete }: ImageCaptchaProps) {
@@ -25,7 +31,8 @@ export function ImageCaptcha({ difficulty, onComplete }: ImageCaptchaProps) {
   const startTime = React.useRef<number>(Date.now());
   const [gridSize, setGridSize] = React.useState(3); // 3x3
   const [images, setImages] = React.useState<Image[]>([]);
-  const [imageCollection, setImageCollection] = React.useState<ImageCollection | null>(null);
+  const [imageCollection, setImageCollection] =
+    React.useState<ImageCollection | null>(null);
   const [imageCollections, setImageCollections] =
     React.useState<ImageCollection[]>(mockImageCollections);
 
@@ -82,19 +89,29 @@ export function ImageCaptcha({ difficulty, onComplete }: ImageCaptchaProps) {
 
     const success = missedTargets.length === 0 && falsePositives.length === 0;
 
-    onComplete(success, timeTaken);
+    const testID = imageCollection?.id?.toString();
+    const userResponse = Array.from(selected).sort().join(", ");
+    const correctAnswer = images
+      .filter((img) => img.isTarget)
+      .map((img) => img.id)
+      .sort()
+      .join(", ");
+
+    onComplete(
+      success,
+      timeTaken,
+      `"${userResponse}"`,
+      `"${correctAnswer}"`,
+      testID,
+    );
   };
 
   return (
     <Card className="w-full max-w-2xl mx-auto border-4 border-white/50 shadow-cute rounded-3xl bg-white/80 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="flex flex-col justify-center items-center text-primary">
-          <span className="text-lg">
-            Select all images with
-          </span>
-          <span className="text-3xl">
-            {imageCollection?.name}
-          </span>
+          <span className="text-lg">Select all images with</span>
+          <span className="text-3xl">{imageCollection?.name}</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
