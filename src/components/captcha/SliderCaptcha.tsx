@@ -31,6 +31,7 @@ export function SliderCaptcha({ difficulty, onComplete }: SliderCaptchaProps) {
   const [targetY, setTargetY] = React.useState(30); // vertical position (%)
   const [pieceRotation, setPieceRotation] = React.useState(0); // degrees
   const [images, setImages] = React.useState<SliderImage[]>(sliderImages);
+  const [imageID, setImageID] = React.useState<number>(0);
   const [imageUrl, setImageUrl] = React.useState("");
   const startTime = React.useRef<number>(Date.now());
 
@@ -60,6 +61,7 @@ export function SliderCaptcha({ difficulty, onComplete }: SliderCaptchaProps) {
     }
 
     const randomImage = images[Math.floor(Math.random() * images.length)];
+    setImageID(randomImage.id);
     setImageUrl(randomImage.url);
 
     setImages((prev) => prev.filter((image) => image.id != randomImage.id));
@@ -93,6 +95,7 @@ export function SliderCaptcha({ difficulty, onComplete }: SliderCaptchaProps) {
       timeTaken,
       sliderValue.toString(),
       targetPosition.toString(),
+      imageID.toString(),
     );
   };
 
